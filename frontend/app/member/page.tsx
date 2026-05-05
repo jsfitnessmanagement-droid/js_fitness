@@ -11,8 +11,9 @@ export default function MemberStatus() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data } = await api.get('/members/profile');
-        setProfile(data);
+        const resp = await api.get('/members/profile');
+        const payload = resp?.data?.data ?? resp?.data ?? null;
+        setProfile(payload);
       } catch (err) {
         console.error('Failed to load profile', err);
       } finally {
@@ -48,12 +49,12 @@ export default function MemberStatus() {
     );
   }
 
-  const joinDate = new Date(profile.joinDate);
-  const expirationDate = new Date(profile.expirationDate);
+  const joinDate = profile?.joinDate ? new Date(profile.joinDate) : null;
+  const expirationDate = profile?.expirationDate ? new Date(profile.expirationDate) : null;
   const today = new Date();
   
-  const totalDays = Math.round((expirationDate.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
-  const daysLeft = Math.round((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const totalDays = (joinDate && expirationDate) ? Math.round((expirationDate.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+  const daysLeft = (expirationDate) ? Math.round((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : 0;
   
   const percentUsed = Math.min(100, Math.max(0, ((totalDays - daysLeft) / totalDays) * 100));
 
@@ -70,7 +71,7 @@ export default function MemberStatus() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8">
-        Welcome back, <span className="gradient-text">{profile.user.name}</span>!
+        Welcome back, <span className="gradient-text">{profile?.user?.name ?? 'Member'}</span>!
       </h2>
 
       {/* Expiry Warning */}
@@ -101,8 +102,8 @@ export default function MemberStatus() {
           
           <h3 className="text-lg sm:text-xl font-bold text-slate-300 mb-5">Current Plan</h3>
           <div className="flex flex-wrap items-end gap-2 mb-4">
-            <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-white">{profile.membershipTier}</span>
-            <span className="text-lg sm:text-xl text-orange-500 font-bold mb-1">{pricingMap[profile.membershipTier] || ''}</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-white">{profile?.membershipTier ?? '—'}</span>
+            <span className="text-lg sm:text-xl text-orange-500 font-bold mb-1">{pricingMap[profile?.membershipTier] || ''}</span>
           </div>
           
           <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
@@ -114,8 +115,8 @@ export default function MemberStatus() {
           
           <div className="mt-6 pt-5 border-t border-slate-700">
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-slate-400">Joined: {joinDate.toLocaleDateString()}</span>
-              <span className="text-slate-400">Expires: {expirationDate.toLocaleDateString()}</span>
+              <span className="text-slate-400">Joined: {joinDate ? joinDate.toLocaleDateString() : '—'}</span>
+              <span className="text-slate-400">Expires: {expirationDate ? expirationDate.toLocaleDateString() : '—'}</span>
             </div>
           </div>
         </div>
