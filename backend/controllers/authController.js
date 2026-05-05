@@ -2,7 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+// use Node's crypto.randomUUID to avoid ESM-only uuid package issues in tests
 const mongoose = require('mongoose');
 // No per-request DB reconnects; server connects once at startup
 
@@ -27,7 +27,7 @@ const authUser = async (req, res, next) => {
       // generate access and refresh tokens
       const accessToken = generateToken(user._id);
       const refreshToken = generateRefreshToken();
-      const tokenId = uuidv4();
+      const tokenId = crypto.randomUUID();
 
       // store hashed refresh token on user with id for efficient lookup
       const hash = await bcrypt.hash(refreshToken, 10);

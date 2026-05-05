@@ -19,21 +19,25 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const { data } = await api.post('/auth/login', { email, password });
-      
+      const resp = await api.post('/auth/login', { email, password });
+      // API returns { success: true, data: { ...user, token } }
+      const payload = resp?.data?.data ?? resp?.data ?? {};
+
       // Save token and user info
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userRole', data.role);
-      localStorage.setItem('userName', data.name);
-      
+      if (payload.token) localStorage.setItem('token', payload.token);
+      if (payload.role) localStorage.setItem('userRole', payload.role);
+      if (payload.name) localStorage.setItem('userName', payload.name);
+
       // Redirect based on role
-      if (data.role === 'admin') {
+      if (payload.role === 'admin') {
         router.push('/admin');
       } else {
         router.push('/member');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to login. Please check your credentials.');
+      setError(
+        err.response?.data?.error?.message || err.response?.data?.message || 'Failed to login. Please check your credentials.'
+      );
     } finally {
       setLoading(false);
     }

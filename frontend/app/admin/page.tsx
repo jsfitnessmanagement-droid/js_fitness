@@ -17,7 +17,8 @@ export default function AdminDashboard() {
     const fetchData = async () => {
       try {
         const res = await api.get('/dashboard/analytics');
-        setData(res.data);
+        // API returns { success: true, data: { ... } }
+        setData(res.data?.data ?? res.data ?? {});
       } catch (error) {
         console.error('Failed to fetch analytics', error);
       } finally {

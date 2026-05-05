@@ -31,9 +31,11 @@ try {
 app.use(express.json());
 // ensure cookies are parsed before routes
 app.use(cookieParser());
-// CORS — restrict in production via environment
+// CORS — allow frontend origin and include credentials for refresh cookies
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(corsOptions));
 
