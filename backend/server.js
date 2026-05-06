@@ -33,7 +33,7 @@ app.use(express.json());
 app.use(cookieParser());
 // CORS — allow frontend origin and include credentials for refresh cookies
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || 'https://js-fitness-lilac.vercel.app/',
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
