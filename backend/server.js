@@ -1,3 +1,7 @@
+// Load env vars FIRST, before any other module reads process.env
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const cors = require('cors');
 const cronJobs = require('./services/cronJobs');
@@ -32,8 +36,20 @@ app.use(express.json());
 // ensure cookies are parsed before routes
 app.use(cookieParser());
 // CORS — allow frontend origin and include credentials for refresh cookies
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map(o => o.trim());
+console.log('Allowed CORS origins:', allowedOrigins);
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'https://js-fitness-lilac.vercel.app/',
+  origin: function (origin, callback) {
+    // allow requests with no origin (mobile apps, curl, etc)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
@@ -72,9 +88,7 @@ module.exports = app;
 
 // If server.js is run directly, start the server and connect to DB
 if (require.main === module) {
-  const dotenv = require('dotenv');
   const connectDB = require('./config/db');
-  dotenv.config();
 
   // Basic env validation
   const requiredEnvs = ['MONGO_URI', 'JWT_SECRET'];
