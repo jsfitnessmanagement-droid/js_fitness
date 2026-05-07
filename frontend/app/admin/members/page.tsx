@@ -21,8 +21,8 @@ export default function MembersPage() {
 
   const fetchMembers = async () => {
     try {
-      const { data } = await api.get('/members');
-      setMembers(data);
+      const res = await api.get('/members');
+      setMembers(res.data?.data ?? res.data ?? []);
     } catch (err) {
       console.error(err);
     } finally {

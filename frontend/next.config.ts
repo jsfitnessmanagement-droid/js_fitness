@@ -6,7 +6,12 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
     // allow images served from same origin or CDN; add domains if using external images
-    domains: ['jsfitness.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'jsfitness.com',
+      },
+    ],
   },
 };
 

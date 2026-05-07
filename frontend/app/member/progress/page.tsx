@@ -13,9 +13,11 @@ export default function ProgressTracker() {
 
   const fetchData = async () => {
     try {
-      const { data: prof } = await api.get('/members/profile');
+      const profRes = await api.get('/members/profile');
+      const prof = profRes.data?.data ?? profRes.data ?? null;
       setProfile(prof);
-      const { data: hist } = await api.get(`/progress/${prof._id}`);
+      const histRes = await api.get(`/progress/${prof._id}`);
+      const hist = histRes.data?.data ?? histRes.data ?? [];
       
       // Format data for chart
       const chartData = hist.map((item: any) => ({

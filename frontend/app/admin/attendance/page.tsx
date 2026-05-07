@@ -15,9 +15,10 @@ export default function AttendancePage() {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const { data } = await api.get('/members');
+        const res = await api.get('/members');
+        const allMembers = res.data?.data ?? res.data ?? [];
         // Only active members
-        setMembers(data.filter((m: any) => m.status === 'Active'));
+        setMembers(allMembers.filter((m: any) => m.status === 'Active'));
       } catch (err) {
         console.error('Failed to fetch members');
       }
