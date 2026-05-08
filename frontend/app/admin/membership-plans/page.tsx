@@ -10,9 +10,10 @@ export default function MembershipPlansManager() {
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [formData, setFormData] = useState({
-    name: '',
+    planName: '',
+    durationInDays: '',
+    displayDuration: '',
     price: '',
-    duration: '',
     features: '',
     savings: '',
     order: '',
