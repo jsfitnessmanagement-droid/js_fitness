@@ -3,21 +3,21 @@ import Image from 'next/image';
 
 export default function HeroSection() {
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pointer-events-auto">
       {/* Background Image with Overlay using Next/Image */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 -z-10">
           <Image src="/images/hero-bg.jpg" alt="JS Fitness Gym interior" fill className="object-cover" priority />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/70 to-slate-900/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/70 to-slate-900/40 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none" />
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl z-0" />
-      <div className="absolute bottom-20 left-10 w-48 h-48 bg-orange-500/5 rounded-full blur-2xl z-0" />
+      <div className="absolute top-20 right-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl z-0 pointer-events-none" />
+      <div className="absolute bottom-20 left-10 w-48 h-48 bg-orange-500/5 rounded-full blur-2xl z-0 pointer-events-none" />
 
-      <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center md:text-left pt-20">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center md:text-left pt-20 pointer-events-auto">
         <div className="max-w-3xl">
           {/* Badge */}
           <div className="inline-flex items-center px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full mb-6 animate-fade-in-up">
@@ -69,8 +69,8 @@ export default function HeroSection() {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-float z-10">
-        <a href="#gallery" className="flex flex-col items-center text-slate-400 hover:text-orange-500 transition-colors">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-float z-10 pointer-events-auto">
+        <a href="#gallery" className="flex flex-col items-center text-slate-400 hover:text-orange-500 transition-colors pointer-events-auto">
           <span className="text-xs tracking-widest uppercase mb-2">Explore</span>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />

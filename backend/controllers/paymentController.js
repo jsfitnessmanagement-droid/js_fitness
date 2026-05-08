@@ -1,4 +1,5 @@
 const Razorpay = require('razorpay');
+const MembershipPlan = require('../models/MembershipPlan');
 
 // Initialize razorpay
 const razorpay = new Razorpay({
@@ -21,6 +22,14 @@ const createOrder = async (req, res, next) => {
 
     // If using placeholder keys, return a mock order to prevent 500 error
     if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID === 'rzp_test_placeholder') {
+      // Still record the sale for tracking purposes
+      if (planName) {
+        const plan = await MembershipPlan.findOne({ name: planName });
+        if (plan) {
+          plan.salesCount += 1;
+          await plan.save();
+        }
+      }
       return res.json({ success: true, data: {
         id: `mock_order_${Date.now()}`,
         currency: "INR",
@@ -50,4 +59,31 @@ const createOrder = async (req, res, next) => {
   }
 };
 
-module.exports = { createOrder };
+// @desc    Record successful payment and update sales count
+// @route   POST /api/payment/record-sale
+// @access  Public
+const recordSale = async (req, res, next) => {
+  try {
+    const { planName } = req.body;
+
+    if (!planName) {
+      return res.status(400).json({ success: false, message: 'Plan name is required' });
+    }
+
+    const plan = await MembershipPlan.findOne({ name: planName });
+    if (!plan) {
+      return res.status(404).json({ success: false, message: 'Membership plan not found' });
+    }
+
+    plan.salesCount += 1;
+    await plan.save();
+
+    res.json({ success: true, message: 'Sale recorded successfully' });
+  } catch (error) {
+    console.error(error);
+    error.statusCode = 500;
+    return next(error);
+  }
+};
+
+module.exports = { createOrder, recordSale };

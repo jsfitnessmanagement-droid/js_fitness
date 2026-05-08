@@ -6,6 +6,8 @@ import BmiCalculator from '@/components/BmiCalculator';
 import PricingSection from '@/components/PricingSection';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import SEO from '@/components/SEO';
+import LocalBusinessSchema from '@/components/LocalBusinessSchema';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -40,6 +42,37 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main className="min-h-screen bg-slate-900">
+      <SEO 
+        title="Best Gym in Sohna, Gurugram"
+        description="JS Fitness Sohna offers premium equipment, certified trainers, and personalized diet plans. Join 500+ members and transform your body."
+        keywords={['gym in Sohna', 'best gym in Sohna', 'fitness center Sohna', 'personal trainer Sohna']}
+        canonical="https://jsfitness.com"
+      />
+      <LocalBusinessSchema
+        name="JS Fitness Gym"
+        description="JS Fitness is the best gym in Sohna, Gurugram with premium equipment, certified personal trainers, customized diet plans, cardio and strength zones."
+        url="https://jsfitness.com"
+        telephone={["+919813041892", "+918397940001"]}
+        email="support@jsfitness.com"
+        address={{
+          streetAddress: "Chungi No. 1, Near Bal Bharti School",
+          addressLocality: "Sohna",
+          addressRegion: "Haryana",
+          postalCode: "122103",
+          addressCountry: "IN"
+        }}
+        geo={{
+          latitude: 28.246473,
+          longitude: 77.0543781
+        }}
+        openingHours="Mo-Su 06:00-22:00"
+        priceRange="₹₹"
+        images={[
+          "https://jsfitness.com/images/gym-exterior.jpg",
+          "https://jsfitness.com/images/hero-bg.jpg",
+          "https://jsfitness.com/images/gym-interior-weights.jpg"
+        ]}
+      />
       <Navbar />
       <HeroSection />
       <GallerySection />

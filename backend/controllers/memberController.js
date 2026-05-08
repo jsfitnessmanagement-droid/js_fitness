@@ -1,55 +1,43 @@
 const Member = require('../models/Member');
 const User = require('../models/User');
+const MembershipPlan = require('../models/MembershipPlan');
 const axios = require('axios');
 const crypto = require('crypto');
 
-// @desc    Create a new member
+// @desc    Create a new member (for signup flow)
 // @route   POST /api/members
-// @access  Private/Admin
+// @access  Private
 const createMember = async (req, res, next) => {
   try {
-    const { name, email, phone, membershipTier, durationMonths } = req.body;
-
-    // Check if user exists
-    let user = await User.findOne({ email });
+    const { phone, membershipPlan } = req.body;
     
-    // If not, create a new User account for the member
-    if (!user) {
-      // Generate a random password for initial setup
-      const randomPassword = crypto.randomBytes(8).toString('hex');
-      user = await User.create({
-        name,
-        email,
-        password: randomPassword,
-        role: 'member'
-      });
+    // Get the authenticated user from the request (set by auth middleware)
+    const userId = req.user._id;
+    
+    // Get the membership plan to calculate expiration
+    const plan = await MembershipPlan.findById(membershipPlan);
+    if (!plan) {
+      const err = new Error('Membership plan not found');
+      err.statusCode = 404;
+      return next(err);
     }
 
     const joinDate = new Date();
     const expirationDate = new Date();
-    expirationDate.setMonth(expirationDate.getMonth() + parseInt(durationMonths));
+    expirationDate.setDate(expirationDate.getDate() + plan.durationInDays);
 
     const member = await Member.create({
-      user: user._id,
+      user: userId,
       phone,
-      membershipTier,
+      membershipPlan: plan._id,
       joinDate,
       expirationDate,
       status: 'Active'
     });
 
-    // Trigger n8n webhook
-    try {
-      await axios.post(process.env.N8N_WEBHOOK_WELCOME_PACKET, {
-        name,
-        email,
-        membership_tier: membershipTier,
-        join_date: joinDate.toISOString(),
-        timestamp: new Date().toISOString()
-      });
-    } catch (webhookError) {
-      console.error('Failed to trigger n8n webhook for member:', webhookError.message);
-    }
+    // Populate the membership plan for the response
+    await member.populate('membershipPlan');
+    await member.populate('user', 'name email');
 
     res.status(201).json({ success: true, data: member });
   } catch (error) {
@@ -76,15 +64,26 @@ const getMembers = async (req, res, next) => {
 // @access  Private/Admin
 const updateMember = async (req, res, next) => {
   try {
-    const { phone, membershipTier, expirationDate } = req.body;
+    const { phone, membershipPlan, expirationDate } = req.body;
     
     const member = await Member.findById(req.params.id);
     if (member) {
       member.phone = phone || member.phone;
-      member.membershipTier = membershipTier || member.membershipTier;
+      if (membershipPlan) {
+        member.membershipPlan = membershipPlan;
+        // Recalculate expiration date if plan changed
+        const plan = await MembershipPlan.findById(membershipPlan);
+        if (plan) {
+          const newExpiration = new Date();
+          newExpiration.setDate(newExpiration.getDate() + plan.durationInDays);
+          member.expirationDate = newExpiration;
+        }
+      }
       if (expirationDate) member.expirationDate = expirationDate;
       
       const updatedMember = await member.save();
+      await updatedMember.populate('membershipPlan');
+      await updatedMember.populate('user', 'name email');
       res.json({ success: true, data: updatedMember });
     } else {
       const err = new Error('Member not found');

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { HelmetProvider } from 'react-helmet-async';
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -93,7 +94,7 @@ const jsonLd = {
   ],
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Near Main Market",
+    streetAddress: "Chungi No. 1, Near Bal Bharti School",
     addressLocality: "Sohna",
     addressRegion: "Haryana",
     postalCode: "122103",

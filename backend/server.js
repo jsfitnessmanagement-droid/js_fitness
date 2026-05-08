@@ -64,6 +64,7 @@ app.use('/api/progress', require('./routes/progressRoutes'));
 app.use('/api/resources', require('./routes/resourceRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/payment', require('./routes/paymentRoutes'));
+app.use('/api/membership-plans', require('./routes/membershipPlanRoutes'));
 
 app.get('/', (req, res) => {
   res.send('API is running...');

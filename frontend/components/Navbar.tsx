@@ -15,7 +15,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on resize
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) setIsOpen(false);
@@ -38,7 +37,6 @@ export default function Navbar() {
     const menu = menuRef.current;
     const focusable = menu ? Array.from(menu.querySelectorAll(firstFocusableSelector)) as HTMLElement[] : [];
 
-    // focus first element in menu
     if (focusable.length) focusable[0].focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -67,16 +65,6 @@ export default function Navbar() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, returnFocusToToggle]);
 
-  // Prevent body scroll when menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [isOpen]);
-
   const navLinks = [
     { label: 'Home', href: '#home' },
     { label: 'Facility', href: '#gallery' },
@@ -100,14 +88,12 @@ export default function Navbar() {
         }`}
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
-          {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="text-2xl font-black text-white tracking-tighter">
               JS <span className="text-orange-500">FITNESS</span>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {navLinks.map((link) => (
               <a
@@ -127,11 +113,10 @@ export default function Navbar() {
             </Link>
           </nav>
 
-          {/* Mobile Menu Button */}
           <button
             ref={btnRef}
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden relative z-50 w-10 h-10 flex flex-col items-center justify-center space-y-1.5 focus:outline-none"
+            className="md:hidden relative z-[70] w-10 h-10 flex flex-col items-center justify-center space-y-1.5 focus:outline-none"
             aria-label="Toggle menu"
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
@@ -155,47 +140,45 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
-      <div
-        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={() => { setIsOpen(false); returnFocusToToggle(); }}
-      />
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[40] md:hidden"
+            onClick={() => { setIsOpen(false); returnFocusToToggle(); }}
+          />
 
-      {/* Mobile Menu Drawer */}
-      <div
-        id="mobile-menu"
-        ref={menuRef}
-        role="dialog"
-        aria-modal={isOpen}
-        tabIndex={-1}
-        className={`fixed top-0 right-0 h-full max-w-[80vw] w-full sm:w-72 bg-slate-950 border-l border-slate-800 z-40 transform transition-transform duration-300 md:hidden ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="pt-24 px-6 space-y-2">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={handleNavClick}
-              className="block py-3 px-4 text-slate-300 hover:text-orange-500 hover:bg-slate-800/50 rounded-lg transition-all font-medium text-lg"
-            >
-              {link.label}
-            </a>
-          ))}
-          <div className="pt-4 border-t border-slate-800 mt-4">
-            <Link
-              href="/login"
-              onClick={handleNavClick}
-              className="block text-center py-3 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition-all text-lg"
-            >
-              Login / Sign Up
-            </Link>
+          <div
+            id="mobile-menu"
+            ref={menuRef}
+            role="dialog"
+            aria-modal={isOpen}
+            tabIndex={-1}
+            className="fixed top-0 right-0 h-full max-w-[80vw] w-full sm:w-72 bg-slate-950 border-l border-slate-800 z-[50] md:hidden"
+          >
+            <div className="pt-24 px-6 space-y-2">
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={handleNavClick}
+                  className="block py-3 px-4 text-slate-300 hover:text-orange-500 hover:bg-slate-800/50 rounded-lg transition-all font-medium text-lg"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <div className="pt-4 border-t border-slate-800 mt-4">
+                <Link
+                  href="/login"
+                  onClick={handleNavClick}
+                  className="block text-center py-3 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition-all text-lg"
+                >
+                  Login / Sign Up
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </>
   );
 }
