@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'jsfitness.com',
+        hostname: 'jsfitness.in',
       },
     ],
   },

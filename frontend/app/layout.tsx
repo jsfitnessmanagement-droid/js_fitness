@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     email: true,
     address: true,
   },
-  metadataBase: new URL("https://jsfitness.com"),
+  metadataBase: new URL("https://jsfitness.in"),
   alternates: {
     canonical: "/",
   },
@@ -36,17 +36,17 @@ export const metadata: Metadata = {
     title: "JS Fitness — Best Gym in Sohna, Gurugram",
     description:
       "Premium gym with modern equipment, certified trainers, and personalized diet plans. Join our community in Sohna today.",
-    url: "https://jsfitness.com",
+    url: "https://jsfitness.in",
     siteName: "JS Fitness Sohna",
     images: [
       {
-        url: "https://jsfitness.com/images/gym-exterior.jpg",
+        url: "https://jsfitness.in/images/gym-exterior.jpg",
         width: 1200,
         height: 630,
         alt: "JS Fitness Gym - Exterior",
       },
       {
-        url: "https://jsfitness.com/images/hero-bg.jpg",
+        url: "https://jsfitness.in/images/hero-bg.jpg",
         width: 1200,
         height: 630,
         alt: "JS Fitness Interior",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     title: "JS Fitness — Best Gym in Sohna",
     description:
       "Premium gym with certified trainers and personalized plans in Sohna, Gurugram.",
-    images: ["https://jsfitness.com/images/gym-exterior.jpg"],
+    images: ["https://jsfitness.in/images/gym-exterior.jpg"],
   },
   robots: {
     index: true,
@@ -84,13 +84,13 @@ const jsonLd = {
   alternateName: "JS Fitness Sohna",
   description:
     "JS Fitness is the best gym in Sohna, Gurugram with premium equipment, certified personal trainers, customized diet plans, cardio and strength zones.",
-  url: "https://jsfitness.com",
+  url: "https://jsfitness.in",
   telephone: ["+919813041892", "+918397940001"],
-  email: "support@jsfitness.com",
+  email: "support@jsfitness.in",
   image: [
-    "https://jsfitness.com/images/gym-exterior.jpg",
-    "https://jsfitness.com/images/hero-bg.jpg",
-    "https://jsfitness.com/images/gym-interior-weights.jpg",
+    "https://jsfitness.in/images/gym-exterior.jpg",
+    "https://jsfitness.in/images/hero-bg.jpg",
+    "https://jsfitness.in/images/gym-interior-weights.jpg",
   ],
   address: {
     "@type": "PostalAddress",

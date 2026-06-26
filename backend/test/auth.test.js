@@ -20,7 +20,7 @@ describe('Auth flow', () => {
   it('should login, refresh token, and logout', async () => {
     const loginRes = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'member@jsfitness.com', password: 'member123' })
+      .send({ email: 'member@jsfitness.in', password: 'member123' })
       .expect(200);
 
     expect(loginRes.body).toHaveProperty('success', true);

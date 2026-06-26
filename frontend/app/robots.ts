@@ -14,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/member/", "/api/"],
       },
     ],
-    sitemap: "https://jsfitness.com/sitemap.xml",
+    sitemap: "https://jsfitness.in/sitemap.xml",
   };
 }

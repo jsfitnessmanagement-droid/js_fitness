@@ -165,7 +165,7 @@ export default function Signup() {
       <SEO
         title="Sign Up - JS Fitness Membership"
         description="Join JS Fitness Sohna today. Choose from our flexible membership plans and start your fitness journey with premium equipment and certified trainers."
-        canonical="https://jsfitness.com/signup"
+        canonical="https://jsfitness.in/signup"
       />
       <div className="min-h-screen bg-slate-900 py-12 px-4">
       <div className="max-w-6xl mx-auto">

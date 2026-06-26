@@ -16,29 +16,29 @@ const seedDB = async () => {
     console.log('MongoDB Connected for seeding...');
 
     // 1. Create Admin
-    const adminExists = await User.findOne({ email: 'admin@jsfitness.com' });
+    const adminExists = await User.findOne({ email: 'admin@jsfitness.in' });
     if (!adminExists) {
       await User.create({
         name: 'JS Fitness Admin',
-        email: 'admin@jsfitness.com',
+        email: 'admin@jsfitness.in',
         password: 'admin123',
         role: 'admin'
       });
-      console.log('✅ Admin user created: admin@jsfitness.com / admin123');
+      console.log('✅ Admin user created: admin@jsfitness.in / admin123');
     } else {
       console.log('ℹ️  Admin user already exists.');
     }
 
     // 2. Create Test Member User
-    let memberUser = await User.findOne({ email: 'member@jsfitness.com' });
+    let memberUser = await User.findOne({ email: 'member@jsfitness.in' });
     if (!memberUser) {
       memberUser = await User.create({
         name: 'Test Member',
-        email: 'member@jsfitness.com',
+        email: 'member@jsfitness.in',
         password: 'member123',
         role: 'member'
       });
-      console.log('✅ Member user created: member@jsfitness.com / member123');
+      console.log('✅ Member user created: member@jsfitness.in / member123');
     } else {
       console.log('ℹ️  Member user already exists.');
     }
@@ -64,8 +64,8 @@ const seedDB = async () => {
     }
 
     console.log('\n🎉 Seeding complete! You can now login with:');
-    console.log('   Admin:  admin@jsfitness.com / admin123');
-    console.log('   Member: member@jsfitness.com / member123\n');
+    console.log('   Admin:  admin@jsfitness.in / admin123');
+    console.log('   Member: member@jsfitness.in / member123\n');
 
     process.exit(0);
   } catch (error) {

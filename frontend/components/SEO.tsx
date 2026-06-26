@@ -25,7 +25,7 @@ export default function SEO({
   const defaultTitle = `${title ? `${title} | ` : ''}${siteName}`;
   const defaultDescription = description || 
     'JS Fitness is the best gym in Sohna, Gurugram, Haryana. Premium equipment, certified trainers, personalized diet plans, and a friendly community.';
-  const defaultImage = ogImage || 'https://jsfitness.com/images/gym-exterior.jpg';
+  const defaultImage = ogImage || 'https://jsfitness.in/images/gym-exterior.jpg';
   const defaultKeywords = keywords || [
     'gym in Sohna',
     'best gym in Sohna',

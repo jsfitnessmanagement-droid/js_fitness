@@ -18,10 +18,10 @@ export const metadata: Metadata = {
     title: 'JS Fitness — Best Gym in Sohna, Gurugram',
     description:
       'Premium gym with modern equipment, certified trainers, and personalized plans. Visit JS Fitness in Sohna.',
-    url: 'https://jsfitness.com',
+    url: 'https://jsfitness.in',
     images: [
       {
-        url: 'https://jsfitness.com/images/gym-exterior.jpg',
+        url: 'https://jsfitness.in/images/gym-exterior.jpg',
         width: 1200,
         height: 630,
         alt: 'JS Fitness Exterior',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: 'JS Fitness — Best Gym in Sohna',
     description:
       'Premium gym with certified trainers and personalized plans in Sohna, Gurugram.',
-    images: ['https://jsfitness.com/images/gym-exterior.jpg'],
+    images: ['https://jsfitness.in/images/gym-exterior.jpg'],
   },
 };
 
@@ -46,14 +46,14 @@ export default function Home() {
         title="Best Gym in Sohna, Gurugram"
         description="JS Fitness Sohna offers premium equipment, certified trainers, and personalized diet plans. Join 500+ members and transform your body."
         keywords={['gym in Sohna', 'best gym in Sohna', 'fitness center Sohna', 'personal trainer Sohna']}
-        canonical="https://jsfitness.com"
+        canonical="https://jsfitness.in"
       />
       <LocalBusinessSchema
         name="JS Fitness Gym"
         description="JS Fitness is the best gym in Sohna, Gurugram with premium equipment, certified personal trainers, customized diet plans, cardio and strength zones."
-        url="https://jsfitness.com"
+        url="https://jsfitness.in"
         telephone={["+919813041892", "+918397940001"]}
-        email="support@jsfitness.com"
+        email="support@jsfitness.in"
         address={{
           streetAddress: "Chungi No. 1, Near Bal Bharti School",
           addressLocality: "Sohna",
@@ -68,9 +68,9 @@ export default function Home() {
         openingHours="Mo-Su 06:00-22:00"
         priceRange="₹₹"
         images={[
-          "https://jsfitness.com/images/gym-exterior.jpg",
-          "https://jsfitness.com/images/hero-bg.jpg",
-          "https://jsfitness.com/images/gym-interior-weights.jpg"
+          "https://jsfitness.in/images/gym-exterior.jpg",
+          "https://jsfitness.in/images/hero-bg.jpg",
+          "https://jsfitness.in/images/gym-interior-weights.jpg"
         ]}
       />
       <Navbar />
