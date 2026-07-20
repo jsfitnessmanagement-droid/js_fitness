@@ -27,13 +27,14 @@ const getDashboardAnalytics = async (req, res, next) => {
     const membersJoinedThisMonth = await Member.find({
       status: 'Active',
       joinDate: { $gte: startOfMonth }
-    });
+    }).populate('membershipPlan');
 
     let revenueThisMonth = 0;
-    const pricing = { '1 Month': 1500, '3 Months': 3600, '6 Months': 6000, '1 Year': 10000 };
     
     membersJoinedThisMonth.forEach(m => {
-      revenueThisMonth += (pricing[m.membershipTier] || 0);
+      if (m.membershipPlan && m.membershipPlan.price) {
+        revenueThisMonth += m.membershipPlan.price;
+      }
     });
 
     res.json({ success: true, data: {

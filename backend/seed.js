@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const User = require('./models/User');
 const Member = require('./models/Member');
+const MembershipPlan = require('./models/MembershipPlan');
 
 dotenv.config();
 // Only run seeding when SEED=true to avoid accidental data leaks
@@ -46,6 +47,12 @@ const seedDB = async () => {
     // 3. Create Member profile
     const memberProfileExists = await Member.findOne({ user: memberUser._id });
     if (!memberProfileExists) {
+      const plan = await MembershipPlan.findOne({ planName: '3 Months' });
+      if (!plan) {
+        console.error('❌ Membership plan "3 Months" not found. Please run seedMembershipPlans.js first.');
+        process.exit(1);
+      }
+
       const joinDate = new Date();
       const expirationDate = new Date();
       expirationDate.setMonth(expirationDate.getMonth() + 3);
@@ -53,7 +60,7 @@ const seedDB = async () => {
       await Member.create({
         user: memberUser._id,
         phone: '9999999999',
-        membershipTier: '3 Months',
+        membershipPlan: plan._id,
         joinDate,
         expirationDate,
         status: 'Active'

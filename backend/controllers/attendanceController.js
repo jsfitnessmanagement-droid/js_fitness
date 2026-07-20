@@ -38,7 +38,7 @@ const getAttendanceHistory = async (req, res, next) => {
     // If user is a member, they can only see their own attendance
     if (req.user.role === 'member') {
       const memberProfile = await Member.findOne({ user: req.user._id });
-      if (memberProfile._id.toString() !== req.params.memberId) {
+      if (!memberProfile || memberProfile._id.toString() !== req.params.memberId) {
         const err = new Error('Not authorized to view this data');
         err.statusCode = 403;
         return next(err);

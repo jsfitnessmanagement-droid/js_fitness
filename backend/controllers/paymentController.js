@@ -1,5 +1,6 @@
 const Razorpay = require('razorpay');
 const MembershipPlan = require('../models/MembershipPlan');
+const crypto = require('crypto');
 
 // Initialize razorpay
 const razorpay = new Razorpay({
@@ -9,7 +10,7 @@ const razorpay = new Razorpay({
 
 // @desc    Create Razorpay Order
 // @route   POST /api/payment/create-order
-// @access  Public
+// @access  Private
 const createOrder = async (req, res, next) => {
   try {
     const { amount, planName } = req.body;
@@ -24,7 +25,7 @@ const createOrder = async (req, res, next) => {
     if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID === 'rzp_test_placeholder') {
       // Still record the sale for tracking purposes
       if (planName) {
-        const plan = await MembershipPlan.findOne({ name: planName });
+        const plan = await MembershipPlan.findOne({ planName });
         if (plan) {
           plan.salesCount += 1;
           await plan.save();
@@ -61,16 +62,29 @@ const createOrder = async (req, res, next) => {
 
 // @desc    Record successful payment and update sales count
 // @route   POST /api/payment/record-sale
-// @access  Public
+// @access  Private
 const recordSale = async (req, res, next) => {
   try {
-    const { planName } = req.body;
+    const { planName, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     if (!planName) {
       return res.status(400).json({ success: false, message: 'Plan name is required' });
     }
 
-    const plan = await MembershipPlan.findOne({ name: planName });
+    // Verify signature if provided (and if not using test keys)
+    if (process.env.RAZORPAY_KEY_SECRET && process.env.RAZORPAY_KEY_SECRET !== 'secret_placeholder' && razorpay_order_id && razorpay_payment_id && razorpay_signature) {
+      const body = razorpay_order_id + "|" + razorpay_payment_id;
+      const expectedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(body.toString())
+        .digest('hex');
+      
+      if (expectedSignature !== razorpay_signature) {
+        return res.status(400).json({ success: false, message: 'Invalid payment signature' });
+      }
+    }
+
+    const plan = await MembershipPlan.findOne({ planName });
     if (!plan) {
       return res.status(404).json({ success: false, message: 'Membership plan not found' });
     }

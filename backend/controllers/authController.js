@@ -69,7 +69,8 @@ const authUser = async (req, res, next) => {
 // @access  Public (should be protected in production, or seeded)
 const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
+    const role = 'member'; // Force member role, prevent escalation
 
     // Disallow open registration unless explicitly enabled
     if (process.env.ALLOW_REGISTRATION !== 'true') {

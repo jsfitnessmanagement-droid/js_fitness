@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Link from 'next/link';
-import SEO from '@/components/SEO';
 
 export default function Signup() {
   const router = useRouter();
@@ -162,11 +161,6 @@ export default function Signup() {
   // Render signup page
   return (
     <>
-      <SEO
-        title="Sign Up - JS Fitness Membership"
-        description="Join JS Fitness Sohna today. Choose from our flexible membership plans and start your fitness journey with premium equipment and certified trainers."
-        canonical="https://jsfitness.in/signup"
-      />
       <div className="min-h-screen bg-slate-900 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">

@@ -58,6 +58,7 @@ export default function MemberStatus() {
   
   const percentUsed = Math.min(100, Math.max(0, ((totalDays - daysLeft) / totalDays) * 100));
 
+  // TODO: Fetch pricing from API instead of hardcoding to ensure it stays up to date
   const pricingMap: Record<string, string> = { 
     '1 Month': '₹1,500', 
     '3 Months': '₹3,600', 

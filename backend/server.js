@@ -9,12 +9,11 @@ const cronJobs = require('./services/cronJobs');
 const app = express();
 
 // security and rate limiting (best-effort requires packages installed)
-try {
-  const helmet = require('helmet');
-  app.use(helmet());
-} catch (e) {
-  console.warn('helmet not installed — skip');
-}
+const helmet = require('helmet');
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+  crossOriginEmbedderPolicy: false
+}));
 
 try {
   const rateLimit = require('express-rate-limit');
@@ -70,6 +69,10 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // process-level handlers
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
@@ -102,9 +105,21 @@ if (require.main === module) {
   connectDB()
     .then(() => {
       const PORT = process.env.PORT || 5000;
-      app.listen(PORT, () => {
+      const server = app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
         cronJobs.init();
+      });
+
+      // Graceful shutdown
+      process.on('SIGTERM', () => {
+        console.log('SIGTERM signal received: closing HTTP server');
+        server.close(() => {
+          console.log('HTTP server closed');
+          mongoose.connection.close(false).then(() => {
+            console.log('MongoDB connection closed');
+            process.exit(0);
+          });
+        });
       });
     })
     .catch((err) => {

@@ -2,9 +2,22 @@ const express = require('express');
 const router = express.Router();
 
 const { authUser, registerUser, refreshTokenHandler, logoutHandler } = require('../controllers/authController');
+const { validateBody, Joi } = require('../middleware/validateMiddleware');
 
-router.post('/login', authUser);
-router.post('/register', registerUser);
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required()
+});
+
+const registerSchema = Joi.object({
+  name: Joi.string().min(2).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
+  role: Joi.string().valid('member', 'admin').optional()
+});
+
+router.post('/login', validateBody(loginSchema), authUser);
+router.post('/register', validateBody(registerSchema), registerUser);
 router.post('/refresh', refreshTokenHandler);
 router.post('/logout', logoutHandler);
 
