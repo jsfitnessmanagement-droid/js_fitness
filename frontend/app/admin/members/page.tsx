@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
-import { Plus, UserX, CheckCircle, Edit, Eye, EyeOff } from 'lucide-react';
+import { Plus, UserX, CheckCircle, Edit, Eye, EyeOff, Trash2 } from 'lucide-react';
 
 export default function MembersPage() {
   const [members, setMembers] = useState([]);
@@ -99,6 +99,18 @@ export default function MembersPage() {
     }
   };
 
+  const handleDeleteMember = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to permanently remove "${name}"? This will delete their account and all data.`)) return;
+    try {
+      await api.delete(`/members/${id}`);
+      fetchMembers();
+      alert('Member removed successfully!');
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || 'Failed to remove member.';
+      alert(msg);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -166,6 +178,13 @@ export default function MembersPage() {
                         title={m.status === 'Active' ? 'Disable Member' : 'Activate Member'}
                       >
                         {m.status === 'Active' ? <UserX size={18} /> : <CheckCircle size={18} />}
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteMember(m._id, m.user?.name)}
+                        className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                        title="Remove Member"
+                      >
+                        <Trash2 size={18} />
                       </button>
                     </td>
                   </tr>

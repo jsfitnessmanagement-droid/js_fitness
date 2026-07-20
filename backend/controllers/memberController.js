@@ -174,4 +174,32 @@ const getMemberProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { createMember, getMembers, updateMember, updateMemberStatus, getMemberProfile };
+// @desc    Delete a member and their user account
+// @route   DELETE /api/members/:id
+// @access  Private/Admin
+const deleteMember = async (req, res, next) => {
+  try {
+    const member = await Member.findById(req.params.id).populate('user');
+    if (!member) {
+      const err = new Error('Member not found');
+      err.statusCode = 404;
+      return next(err);
+    }
+
+    // Delete the associated User account (only if they are a member, not admin)
+    if (member.user && member.user.role !== 'admin') {
+      await User.findByIdAndDelete(member.user._id);
+    }
+
+    // Delete the member record
+    await Member.findByIdAndDelete(req.params.id);
+
+    res.json({ success: true, message: 'Member removed successfully' });
+  } catch (error) {
+    error.statusCode = 500;
+    return next(error);
+  }
+};
+
+module.exports = { createMember, getMembers, updateMember, updateMemberStatus, getMemberProfile, deleteMember };
+

@@ -1,16 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const { createMember, getMembers, updateMember, updateMemberStatus, getMemberProfile } = require('../controllers/memberController');
+const { createMember, getMembers, updateMember, updateMemberStatus, getMemberProfile, deleteMember } = require('../controllers/memberController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const { validateBody, Joi } = require('../middleware/validateMiddleware');
 
 const createMemberSchema = Joi.object({
+  name: Joi.string().optional(),
+  email: Joi.string().email().optional(),
   phone: Joi.string().allow('', null),
-  membershipPlan: Joi.string().required()
+  password: Joi.string().allow('', null).optional(),
+  membershipPlan: Joi.string().optional(),
+  membershipTier: Joi.string().optional(),
+  durationMonths: Joi.number().optional()
 });
 
 const updateMemberSchema = Joi.object({
-  phone: Joi.string().optional(),
+  id: Joi.string().optional(),
+  name: Joi.string().optional(),
+  email: Joi.string().email().optional(),
+  phone: Joi.string().allow('', null).optional(),
+  password: Joi.string().allow('', null).optional(),
   membershipPlan: Joi.string().optional(),
   expirationDate: Joi.date().optional()
 });
@@ -24,7 +33,8 @@ router.route('/')
 router.get('/profile', protect, getMemberProfile);
 
 router.route('/:id')
-  .put(protect, admin, validateBody(updateMemberSchema), updateMember);
+  .put(protect, admin, validateBody(updateMemberSchema), updateMember)
+  .delete(protect, admin, deleteMember);
 
 router.patch('/:id/status', protect, admin, validateBody(updateStatusSchema), updateMemberStatus);
 
