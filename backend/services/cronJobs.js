@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const Member = require('../models/Member');
-const axios = require('axios');
+const { sendRenewalNoticeEmail } = require('./emailService');
 
 const init = () => {
   // Run every day at 08:00 AM
@@ -25,21 +25,12 @@ const init = () => {
       }).populate('user', 'name email');
 
       if (expiringMembers.length > 0) {
-        const expiringData = expiringMembers.map(m => ({
-          name: m.user.name,
-          email: m.user.email,
-          expiration_date: m.expirationDate.toISOString()
-        }));
-
-        try {
-          await axios.post(process.env.N8N_WEBHOOK_RENEWAL_NOTICE, {
-            expiring_members: expiringData,
-            timestamp: new Date().toISOString()
-          });
-          console.log(`Triggered renewal notice for ${expiringData.length} members.`);
-        } catch (webhookError) {
-          console.error('Failed to trigger n8n webhook for renewals:', webhookError.message);
+        for (const m of expiringMembers) {
+          if (m.user && m.user.email) {
+            await sendRenewalNoticeEmail(m.user.email, m.user.name, 3);
+          }
         }
+        console.log(`Sent renewal notices to ${expiringMembers.length} members.`);
       } else {
         console.log('No memberships expiring in exactly 3 days.');
       }

@@ -1,6 +1,7 @@
 const Razorpay = require('razorpay');
 const MembershipPlan = require('../models/MembershipPlan');
 const crypto = require('crypto');
+const { sendReceiptEmail } = require('../services/emailService');
 
 // Initialize razorpay
 const razorpay = new Razorpay({
@@ -91,6 +92,11 @@ const recordSale = async (req, res, next) => {
 
     plan.salesCount += 1;
     await plan.save();
+
+    // Send native email receipt to the logged-in user
+    if (req.user && req.user.email) {
+      await sendReceiptEmail(req.user.email, req.user.name, plan.planName, plan.price);
+    }
 
     res.json({ success: true, message: 'Sale recorded successfully' });
   } catch (error) {

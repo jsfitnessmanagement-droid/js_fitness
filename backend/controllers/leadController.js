@@ -1,5 +1,5 @@
 const Lead = require('../models/Lead');
-const axios = require('axios');
+const { sendTrialPassEmail } = require('../services/emailService');
 
 // @desc    Create a lead (from BMI calculator)
 // @route   POST /api/leads
@@ -12,19 +12,8 @@ const createLead = async (req, res, next) => {
       name, email, age, height, weight, gender, bmi, calorieEstimate
     });
 
-    // Trigger n8n webhook
-    try {
-      await axios.post(process.env.N8N_WEBHOOK_TRIAL_PASS, {
-        name,
-        email,
-        bmi,
-        calorie_estimate: calorieEstimate,
-        timestamp: new Date().toISOString()
-      });
-    } catch (webhookError) {
-      console.error('Failed to trigger n8n webhook for lead:', webhookError.message);
-      // We don't fail the request if webhook fails, just log it
-    }
+    // Send native email
+    await sendTrialPassEmail(email, name);
 
     res.status(201).json({ success: true, data: lead });
   } catch (error) {
