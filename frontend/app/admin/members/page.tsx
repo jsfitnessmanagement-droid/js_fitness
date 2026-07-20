@@ -2,19 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
-import { Plus, UserX, CheckCircle, Edit } from 'lucide-react';
+import { Plus, UserX, CheckCircle, Edit, Eye, EyeOff } from 'lucide-react';
 
 export default function MembersPage() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', membershipTier: '1 Month', durationMonths: 1
+    name: '', email: '', phone: '', password: '', membershipTier: '1 Month', durationMonths: 1
   });
+  const [showAddPassword, setShowAddPassword] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState({
     id: '', name: '', email: '', phone: '', password: ''
   });
+  const [showEditPassword, setShowEditPassword] = useState(false);
 
   const tierDurations: Record<string, number> = {
     '1 Month': 1,
@@ -51,13 +53,14 @@ export default function MembersPage() {
     try {
       const res = await api.post('/members', formData);
       setShowModal(false);
-      setFormData({ name: '', email: '', phone: '', membershipTier: '1 Month', durationMonths: 1 });
+      setFormData({ name: '', email: '', phone: '', password: '', membershipTier: '1 Month', durationMonths: 1 });
+      setShowAddPassword(false);
       fetchMembers();
-      if (res.data?.defaultPassword) {
-        alert(`Member added! Give them this default password to log in: ${res.data.defaultPassword}`);
-      }
-    } catch (err) {
-      alert('Failed to add member. Please try again.');
+      const pw = res.data?.defaultPassword || formData.password || 'JSFitness@123';
+      alert(`Member added successfully!\n\nTheir login credentials:\nEmail: ${formData.email}\nPassword: ${pw}`);
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || err.response?.data?.message || 'Failed to add member. Please try again.';
+      alert(msg);
     }
   };
 
@@ -77,8 +80,9 @@ export default function MembersPage() {
       name: m.user?.name || '',
       email: m.user?.email || '',
       phone: m.phone || '',
-      password: '' // leave blank unless changing
+      password: ''
     });
+    setShowEditPassword(false);
     setShowEditModal(true);
   };
 
@@ -89,8 +93,9 @@ export default function MembersPage() {
       setShowEditModal(false);
       fetchMembers();
       alert('Member updated successfully!');
-    } catch (err) {
-      alert('Failed to update member.');
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || 'Failed to update member.';
+      alert(msg);
     }
   };
 
@@ -190,6 +195,22 @@ export default function MembersPage() {
                 <input required type="text" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:outline-none focus:border-orange-500 transition-colors" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
               </div>
               <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Password (Optional)</label>
+                <div className="relative">
+                  <input 
+                    type={showAddPassword ? 'text' : 'password'} 
+                    placeholder="Default: JSFitness@123" 
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 pr-10 text-white focus:outline-none focus:border-orange-500 transition-colors" 
+                    value={formData.password} 
+                    onChange={e => setFormData({...formData, password: e.target.value})} 
+                  />
+                  <button type="button" onClick={() => setShowAddPassword(!showAddPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
+                    {showAddPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">Leave blank to use default password: JSFitness@123</p>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Membership Plan</label>
                 <select 
                   className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:outline-none focus:border-orange-500 transition-colors" 
@@ -204,7 +225,7 @@ export default function MembersPage() {
               </div>
               
               <div className="flex space-x-3 mt-6">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors">Cancel</button>
+                <button type="button" onClick={() => { setShowModal(false); setShowAddPassword(false); }} className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors">Cancel</button>
                 <button type="submit" className="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium">Save Member</button>
               </div>
             </form>
@@ -228,12 +249,23 @@ export default function MembersPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">New Password (Optional)</label>
-                <input type="password" placeholder="Leave blank to keep current password" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:outline-none focus:border-orange-500 transition-colors" value={editData.password} onChange={e => setEditData({...editData, password: e.target.value})} />
+                <div className="relative">
+                  <input 
+                    type={showEditPassword ? 'text' : 'password'} 
+                    placeholder="Leave blank to keep current password" 
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 pr-10 text-white focus:outline-none focus:border-orange-500 transition-colors" 
+                    value={editData.password} 
+                    onChange={e => setEditData({...editData, password: e.target.value})} 
+                  />
+                  <button type="button" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
+                    {showEditPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 <p className="text-xs text-slate-400 mt-1">If you type a password here, it will overwrite their old password.</p>
               </div>
               
               <div className="flex space-x-3 mt-6">
-                <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors">Cancel</button>
+                <button type="button" onClick={() => { setShowEditModal(false); setShowEditPassword(false); }} className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors">Cancel</button>
                 <button type="submit" className="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium">Save Changes</button>
               </div>
             </form>

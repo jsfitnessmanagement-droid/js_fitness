@@ -9,7 +9,7 @@ const crypto = require('crypto');
 // @access  Private
 const createMember = async (req, res, next) => {
   try {
-    const { name, email, phone, membershipTier, durationMonths, membershipPlan } = req.body;
+    const { name, email, phone, password, membershipTier, durationMonths, membershipPlan } = req.body;
     
     let userId = req.user._id;
     let defaultPassword = null;
@@ -18,7 +18,7 @@ const createMember = async (req, res, next) => {
     if (name && email) {
       let user = await User.findOne({ email });
       if (!user) {
-        defaultPassword = 'JSFitness@123';
+        defaultPassword = password || 'JSFitness@123';
         user = await User.create({
           name,
           email,
