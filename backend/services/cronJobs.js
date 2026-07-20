@@ -8,32 +8,38 @@ const init = () => {
     console.log('Running daily cron job for expiring memberships...');
     try {
       const today = new Date();
-      const threeDaysFromNow = new Date();
-      threeDaysFromNow.setDate(today.getDate() + 3);
-
-      // Find members whose expiration date is exactly 3 days from now
-      // Using start and end of that day
-      const startOfDay = new Date(threeDaysFromNow);
-      startOfDay.setHours(0, 0, 0, 0);
       
-      const endOfDay = new Date(threeDaysFromNow);
-      endOfDay.setHours(23, 59, 59, 999);
+      const checkAndSend = async (daysAhead) => {
+        const targetDate = new Date();
+        targetDate.setDate(today.getDate() + daysAhead);
 
-      const expiringMembers = await Member.find({
-        status: 'Active',
-        expirationDate: { $gte: startOfDay, $lte: endOfDay }
-      }).populate('user', 'name email');
+        const startOfDay = new Date(targetDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
 
-      if (expiringMembers.length > 0) {
-        for (const m of expiringMembers) {
-          if (m.user && m.user.email) {
-            await sendRenewalNoticeEmail(m.user.email, m.user.name, 3);
+        const expiringMembers = await Member.find({
+          status: 'Active',
+          expirationDate: { $gte: startOfDay, $lte: endOfDay }
+        }).populate('user', 'name email');
+
+        if (expiringMembers.length > 0) {
+          for (const m of expiringMembers) {
+            if (m.user && m.user.email) {
+              await sendRenewalNoticeEmail(m.user.email, m.user.name, daysAhead);
+            }
           }
+          console.log(`Sent ${daysAhead}-day renewal notices to ${expiringMembers.length} members.`);
+        } else {
+          console.log(`No memberships expiring in exactly ${daysAhead} days.`);
         }
-        console.log(`Sent renewal notices to ${expiringMembers.length} members.`);
-      } else {
-        console.log('No memberships expiring in exactly 3 days.');
-      }
+      };
+
+      // Send 7-day and 3-day notices
+      await checkAndSend(7);
+      await checkAndSend(3);
+
     } catch (error) {
       console.error('Error in cron job:', error.message);
     }

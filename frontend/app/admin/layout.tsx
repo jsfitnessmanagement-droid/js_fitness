@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Users, LayoutDashboard, CalendarCheck, LogOut, Menu, X, CreditCard } from 'lucide-react';
+import { Users, LayoutDashboard, CalendarCheck, LogOut, Menu, X, CreditCard, Settings } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -50,6 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Members', path: '/admin/members', icon: <Users size={20} /> },
     { label: 'Attendance', path: '/admin/attendance', icon: <CalendarCheck size={20} /> },
     { label: 'Membership Plans', path: '/admin/membership-plans', icon: <CreditCard size={20} /> },
+    { label: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 
   const getPageTitle = () => {

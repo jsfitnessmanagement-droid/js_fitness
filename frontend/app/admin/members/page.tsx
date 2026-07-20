@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
-import { Plus, UserX, CheckCircle, Edit, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Plus, UserX, CheckCircle, Edit, Eye, EyeOff, Trash2, Search, Filter, Download } from 'lucide-react';
 
 export default function MembersPage() {
   const [members, setMembers] = useState([]);
@@ -17,6 +17,9 @@ export default function MembersPage() {
     id: '', name: '', email: '', phone: '', password: ''
   });
   const [showEditPassword, setShowEditPassword] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [planFilter, setPlanFilter] = useState('All');
 
   const tierDurations: Record<string, number> = {
     '1 Month': 1,
@@ -111,16 +114,107 @@ export default function MembersPage() {
     }
   };
 
+  const filteredMembers = members.filter((m: any) => {
+    const matchesSearch = 
+      m.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      m.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.phone?.includes(searchTerm);
+    const matchesStatus = statusFilter === 'All' || m.status === statusFilter;
+    const matchesPlan = planFilter === 'All' || m.membershipTier === planFilter;
+    return matchesSearch && matchesStatus && matchesPlan;
+  });
+
+  const exportToCSV = () => {
+    const headers = ['Name', 'Email', 'Phone', 'Membership Plan', 'Join Date', 'Expiration Date', 'Status'];
+    const rows = filteredMembers.map((m: any) => [
+      m.user?.name || '',
+      m.user?.email || '',
+      m.phone || '',
+      m.membershipTier || '',
+      new Date(m.joinDate).toLocaleDateString(),
+      new Date(m.expirationDate).toLocaleDateString(),
+      m.status
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `jsfitness_members_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-xl sm:text-2xl font-bold text-white">Member Management</h2>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="flex items-center px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm font-medium"
-        >
-          <Plus size={18} className="mr-2" /> Add Member
-        </button>
+        <div className="flex space-x-3 w-full sm:w-auto">
+          <button 
+            onClick={exportToCSV}
+            className="flex-1 sm:flex-none flex items-center justify-center px-4 py-2.5 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm font-medium"
+          >
+            <Download size={18} className="mr-2" /> Export CSV
+          </button>
+          <button 
+            onClick={() => setShowModal(true)}
+            className="flex-1 sm:flex-none flex items-center justify-center px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm font-medium"
+          >
+            <Plus size={18} className="mr-2" /> Add Member
+          </button>
+        </div>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-slate-500" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search name, email, or phone..."
+            className="block w-full pl-10 pr-3 py-2.5 border border-slate-700 rounded-lg bg-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Filter className="h-4 w-4 text-slate-500" />
+          </div>
+          <select
+            className="block w-full pl-10 pr-10 py-2.5 border border-slate-700 rounded-lg bg-slate-800 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 appearance-none"
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+          >
+            <option value="All">All Statuses</option>
+            <option value="Active">Active Only</option>
+            <option value="Inactive">Inactive Only</option>
+          </select>
+        </div>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Filter className="h-4 w-4 text-slate-500" />
+          </div>
+          <select
+            className="block w-full pl-10 pr-10 py-2.5 border border-slate-700 rounded-lg bg-slate-800 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 appearance-none"
+            value={planFilter}
+            onChange={e => setPlanFilter(e.target.value)}
+          >
+            <option value="All">All Plans</option>
+            <option value="1 Month">1 Month</option>
+            <option value="3 Months">3 Months</option>
+            <option value="6 Months">6 Months</option>
+            <option value="1 Year">1 Year</option>
+          </select>
+        </div>
       </div>
 
       <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
@@ -140,10 +234,10 @@ export default function MembersPage() {
             <tbody>
               {loading ? (
                 <tr><td colSpan={7} className="py-8 text-center text-slate-400">Loading...</td></tr>
-              ) : members.length === 0 ? (
-                <tr><td colSpan={7} className="py-8 text-center text-slate-400">No members found. Click &quot;Add Member&quot; to get started.</td></tr>
+              ) : filteredMembers.length === 0 ? (
+                <tr><td colSpan={7} className="py-8 text-center text-slate-400">No members match your filters.</td></tr>
               ) : (
-                members.map((m: any) => (
+                filteredMembers.map((m: any) => (
                   <tr key={m._id} className="border-b border-slate-700/50 hover:bg-slate-700/20 transition-colors">
                     <td className="py-3 sm:py-4 px-4 sm:px-6">
                       <p className="font-medium text-white text-sm">{m.user?.name}</p>
