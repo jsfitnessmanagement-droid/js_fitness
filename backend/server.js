@@ -35,7 +35,7 @@ app.use(express.json());
 // ensure cookies are parsed before routes
 app.use(cookieParser());
 // CORS — allow frontend origin and include credentials for refresh cookies
-const allowedOrigins = (process.env.CORS_ORIGIN || 'https://js-fitness-lilac.vercel.app')
+const allowedOrigins = (process.env.CORS_ORIGIN || 'https://js-fitness-sandy.vercel.app')
   .split(',')
   .map(o => o.trim());
 console.log('Allowed CORS origins:', allowedOrigins);
