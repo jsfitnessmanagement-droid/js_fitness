@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
-import { Plus, UserX, CheckCircle } from 'lucide-react';
+import { Plus, UserX, CheckCircle, Edit } from 'lucide-react';
 
 export default function MembersPage() {
   const [members, setMembers] = useState([]);
@@ -10,6 +10,10 @@ export default function MembersPage() {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', membershipTier: '1 Month', durationMonths: 1
+  });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState({
+    id: '', name: '', email: '', phone: '', password: ''
   });
 
   const tierDurations: Record<string, number> = {
@@ -67,6 +71,29 @@ export default function MembersPage() {
     }
   };
 
+  const openEditModal = (m: any) => {
+    setEditData({
+      id: m._id,
+      name: m.user?.name || '',
+      email: m.user?.email || '',
+      phone: m.phone || '',
+      password: '' // leave blank unless changing
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.put(`/members/${editData.id}`, editData);
+      setShowEditModal(false);
+      fetchMembers();
+      alert('Member updated successfully!');
+    } catch (err) {
+      alert('Failed to update member.');
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -120,7 +147,14 @@ export default function MembersPage() {
                         {m.status}
                       </span>
                     </td>
-                    <td className="py-3 sm:py-4 px-4 sm:px-6 text-right">
+                    <td className="py-3 sm:py-4 px-4 sm:px-6 text-right space-x-2">
+                      <button 
+                        onClick={() => openEditModal(m)}
+                        className="text-slate-400 hover:text-orange-500 transition-colors p-1"
+                        title="Edit Member"
+                      >
+                        <Edit size={18} />
+                      </button>
                       <button 
                         onClick={() => toggleStatus(m._id, m.status)}
                         className="text-slate-400 hover:text-white transition-colors p-1"
@@ -172,6 +206,35 @@ export default function MembersPage() {
               <div className="flex space-x-3 mt-6">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors">Cancel</button>
                 <button type="submit" className="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium">Save Member</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Member Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-slate-700 shadow-2xl animate-fade-in">
+            <h3 className="text-xl font-bold text-white mb-4">Edit Member Credentials</h3>
+            <form onSubmit={handleEditMember} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
+                <input required type="email" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:outline-none focus:border-orange-500 transition-colors" value={editData.email} onChange={e => setEditData({...editData, email: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Phone</label>
+                <input type="text" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:outline-none focus:border-orange-500 transition-colors" value={editData.phone} onChange={e => setEditData({...editData, phone: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">New Password (Optional)</label>
+                <input type="password" placeholder="Leave blank to keep current password" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:outline-none focus:border-orange-500 transition-colors" value={editData.password} onChange={e => setEditData({...editData, password: e.target.value})} />
+                <p className="text-xs text-slate-400 mt-1">If you type a password here, it will overwrite their old password.</p>
+              </div>
+              
+              <div className="flex space-x-3 mt-6">
+                <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium">Save Changes</button>
               </div>
             </form>
           </div>

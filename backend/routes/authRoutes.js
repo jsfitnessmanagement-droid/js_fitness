@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const { authUser, registerUser, refreshTokenHandler, logoutHandler } = require('../controllers/authController');
+const { authUser, registerUser, refreshTokenHandler, logoutHandler, changePassword } = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware');
 const { validateBody, Joi } = require('../middleware/validateMiddleware');
 
 const loginSchema = Joi.object({
@@ -20,5 +21,6 @@ router.post('/login', validateBody(loginSchema), authUser);
 router.post('/register', validateBody(registerSchema), registerUser);
 router.post('/refresh', refreshTokenHandler);
 router.post('/logout', logoutHandler);
+router.put('/change-password', protect, changePassword);
 
 module.exports = router;

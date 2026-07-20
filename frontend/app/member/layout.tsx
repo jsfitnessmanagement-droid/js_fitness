@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, TrendingUp, Download, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Download, LogOut, Menu, X, Settings } from 'lucide-react';
 
 export default function MemberLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -49,6 +49,7 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
     { label: 'Status', path: '/member', icon: <LayoutDashboard size={20} /> },
     { label: 'Progress', path: '/member/progress', icon: <TrendingUp size={20} /> },
     { label: 'Resources', path: '/member/resources', icon: <Download size={20} /> },
+    { label: 'Settings', path: '/member/settings', icon: <Settings size={20} /> },
   ];
 
   const getPageTitle = () => {

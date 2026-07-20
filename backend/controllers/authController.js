@@ -166,4 +166,36 @@ const logoutHandler = async (req, res, next) => {
   }
 };
 
-module.exports = { authUser, registerUser, refreshTokenHandler, logoutHandler };
+// @desc Change user password
+// @route PUT /api/auth/change-password
+// @access Private
+const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, error: { message: 'Current and new password are required' } });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, error: { message: 'User not found' } });
+    }
+
+    // Verify current password
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, error: { message: 'Incorrect current password' } });
+    }
+
+    // Update password (mongoose pre-save hook will hash it)
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, data: { message: 'Password updated successfully' } });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+module.exports = { authUser, registerUser, refreshTokenHandler, logoutHandler, changePassword };

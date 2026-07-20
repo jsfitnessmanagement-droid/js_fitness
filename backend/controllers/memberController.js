@@ -90,10 +90,20 @@ const getMembers = async (req, res, next) => {
 // @access  Private/Admin
 const updateMember = async (req, res, next) => {
   try {
-    const { phone, membershipPlan, expirationDate } = req.body;
+    const { phone, membershipPlan, expirationDate, email, password } = req.body;
     
-    const member = await Member.findById(req.params.id);
+    const member = await Member.findById(req.params.id).populate('user');
     if (member) {
+      // Update User credentials if provided
+      if (email || password) {
+        const user = await User.findById(member.user._id);
+        if (user) {
+          if (email) user.email = email;
+          if (password) user.password = password;
+          await user.save();
+        }
+      }
+
       member.phone = phone || member.phone;
       if (membershipPlan) {
         member.membershipPlan = membershipPlan;
