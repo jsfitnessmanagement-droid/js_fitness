@@ -103,7 +103,43 @@ if (require.main === module) {
   }
 
   connectDB()
-    .then(() => {
+    .then(async () => {
+      // Auto-seed membership plans if none exist
+      try {
+        const MembershipPlan = require('./models/MembershipPlan');
+        const planCount = await MembershipPlan.countDocuments();
+        if (planCount === 0) {
+          console.log('No membership plans found. Auto-seeding...');
+          await MembershipPlan.insertMany([
+            { planName: '1 Month', durationInDays: 30, displayDuration: '/month', price: 1500, features: ['Full Gym Access', 'All Equipment Use', 'Basic Guidance'], savings: null, isActive: true, salesCount: 0, order: 1 },
+            { planName: '3 Months', durationInDays: 90, displayDuration: '/3 months', price: 3600, features: ['Full Gym Access', 'All Equipment Use', 'Trainer Support'], savings: 'Save ₹900', isActive: true, salesCount: 0, order: 2 },
+            { planName: '6 Months', durationInDays: 180, displayDuration: '/6 months', price: 6000, features: ['Full Gym Access', 'All Equipment Use', 'Trainer Support'], savings: 'Save ₹3,000', isActive: true, salesCount: 0, order: 3 },
+            { planName: '1 Year', durationInDays: 365, displayDuration: '/year', price: 10000, features: ['Full Gym Access', 'All Equipment Use', 'Personal Training'], savings: 'Save ₹8,000', isActive: true, salesCount: 0, order: 4 },
+          ]);
+          console.log('Membership plans seeded successfully!');
+        }
+      } catch (seedErr) {
+        console.error('Auto-seed error (non-fatal):', seedErr.message);
+      }
+
+      // Auto-seed admin user if none exist
+      try {
+        const User = require('./models/User');
+        const adminExists = await User.findOne({ role: 'admin' });
+        if (!adminExists) {
+          console.log('No admin user found. Auto-seeding admin...');
+          await User.create({
+            name: 'Admin',
+            email: 'admin@jsfitness.in',
+            password: 'admin123',
+            role: 'admin'
+          });
+          console.log('Admin user seeded successfully!');
+        }
+      } catch (seedErr) {
+        console.error('Admin seed error (non-fatal):', seedErr.message);
+      }
+
       const PORT = process.env.PORT || 5000;
       const server = app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
