@@ -50,8 +50,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            // Prevents loading scripts/images from unauthorized domains (anti-tracking)
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://checkout.razorpay.com https://js-fitness.onrender.com http://localhost:5000; frame-src 'self' https://api.razorpay.com;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://checkout.razorpay.com https://*.onrender.com http://localhost:5000; frame-src 'self' https://api.razorpay.com;",
           },
         ],
       },
