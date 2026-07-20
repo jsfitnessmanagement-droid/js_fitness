@@ -198,4 +198,87 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-module.exports = { authUser, registerUser, refreshTokenHandler, logoutHandler, changePassword };
+// @desc Send password reset email
+// @route POST /api/auth/forgot-password
+// @access Public
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: { message: 'Email is required' } });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal whether email exists for security
+      return res.json({ success: true, data: { message: 'If that email is registered, a reset link has been sent.' } });
+    }
+
+    // Generate a reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+    await user.save();
+
+    // Build the reset URL using the frontend origin
+    const frontendUrl = process.env.CORS_ORIGIN || 'https://js-fitness-sandy.vercel.app';
+    const resetUrl = `${frontendUrl.split(',')[0].trim()}/reset-password?token=${resetToken}`;
+
+    // Send the email
+    const { sendEmail } = require('../services/emailService');
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #f97316;">Password Reset Request</h2>
+        <p>Hi ${user.name},</p>
+        <p>You requested a password reset for your JS Fitness account. Click the button below to set a new password:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background-color: #f97316; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Reset My Password</a>
+        </div>
+        <p style="color: #6b7280; font-size: 14px;">This link expires in 30 minutes. If you didn't request this, you can safely ignore this email.</p>
+        <p>Stay strong,<br>— The JS Fitness Team</p>
+      </div>
+    `;
+    await sendEmail(user.email, 'Password Reset - JS Fitness', html);
+
+    res.json({ success: true, data: { message: 'If that email is registered, a reset link has been sent.' } });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+// @desc Reset password using token
+// @route POST /api/auth/reset-password
+// @access Public
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ success: false, error: { message: 'Token and new password are required' } });
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, error: { message: 'Invalid or expired reset token. Please request a new one.' } });
+    }
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ success: true, data: { message: 'Password reset successfully! You can now log in.' } });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+module.exports = { authUser, registerUser, refreshTokenHandler, logoutHandler, changePassword, forgotPassword, resetPassword };
+

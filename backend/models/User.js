@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'member'], default: 'member' },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
   // store refresh tokens as { id, tokenHash, createdAt } to allow efficient lookup
   refreshTokens: { type: [{ id: { type: String }, tokenHash: { type: String }, createdAt: { type: Date, default: Date.now } }], default: [] }
 }, { timestamps: true });

@@ -85,6 +85,7 @@ const sendRenewalNoticeEmail = async (email, name, daysLeft) => {
 };
 
 module.exports = {
+  sendEmail,
   sendTrialPassEmail,
   sendReceiptEmail,
   sendRenewalNoticeEmail
