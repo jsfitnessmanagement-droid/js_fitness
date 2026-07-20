@@ -45,12 +45,15 @@ export default function MembersPage() {
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/members', formData);
+      const res = await api.post('/members', formData);
       setShowModal(false);
       setFormData({ name: '', email: '', phone: '', membershipTier: '1 Month', durationMonths: 1 });
       fetchMembers();
+      if (res.data?.defaultPassword) {
+        alert(`Member added! Give them this default password to log in: ${res.data.defaultPassword}`);
+      }
     } catch (err) {
-      alert('Failed to add member');
+      alert('Failed to add member. Please try again.');
     }
   };
 

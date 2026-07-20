@@ -9,13 +9,34 @@ const crypto = require('crypto');
 // @access  Private
 const createMember = async (req, res, next) => {
   try {
-    const { phone, membershipPlan } = req.body;
+    const { name, email, phone, membershipTier, durationMonths, membershipPlan } = req.body;
     
-    // Get the authenticated user from the request (set by auth middleware)
-    const userId = req.user._id;
+    let userId = req.user._id;
+    let defaultPassword = null;
+
+    // If admin provides name and email, create or find the User
+    if (name && email) {
+      let user = await User.findOne({ email });
+      if (!user) {
+        defaultPassword = 'JSFitness@123';
+        user = await User.create({
+          name,
+          email,
+          password: defaultPassword,
+          role: 'member'
+        });
+      }
+      userId = user._id;
+    }
     
-    // Get the membership plan to calculate expiration
-    const plan = await MembershipPlan.findById(membershipPlan);
+    // Get the membership plan by ID or Name
+    let plan;
+    if (membershipPlan) {
+      plan = await MembershipPlan.findById(membershipPlan);
+    } else if (membershipTier) {
+      plan = await MembershipPlan.findOne({ planName: membershipTier });
+    }
+
     if (!plan) {
       const err = new Error('Membership plan not found');
       err.statusCode = 404;
@@ -24,7 +45,12 @@ const createMember = async (req, res, next) => {
 
     const joinDate = new Date();
     const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + plan.durationInDays);
+    
+    if (durationMonths) {
+      expirationDate.setMonth(expirationDate.getMonth() + parseInt(durationMonths));
+    } else {
+      expirationDate.setDate(expirationDate.getDate() + plan.durationInDays);
+    }
 
     const member = await Member.create({
       user: userId,
@@ -39,7 +65,7 @@ const createMember = async (req, res, next) => {
     await member.populate('membershipPlan');
     await member.populate('user', 'name email');
 
-    res.status(201).json({ success: true, data: member });
+    res.status(201).json({ success: true, data: member, defaultPassword });
   } catch (error) {
     error.statusCode = 400;
     return next(error);
