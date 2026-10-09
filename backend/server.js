@@ -125,25 +125,22 @@ if (require.main === module) {
         console.error('Auto-seed error (non-fatal):', seedErr.message);
       }
 
-      // Auto-seed admin user if none exist
+      // Auto-seed admin user if none exist for the specified email
       try {
         const User = require('./models/User');
-        const adminExists = await User.findOne({ role: 'admin' });
+        const adminEmail = process.env.ADMIN_EMAIL || 'jsfitness.management@gmail.com';
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        
+        const adminExists = await User.findOne({ email: adminEmail });
         if (!adminExists) {
-          const adminEmail = process.env.ADMIN_EMAIL || 'admin@jsfitness.in';
-          const adminPassword = process.env.ADMIN_PASSWORD;
-          if (adminPassword) {
-            console.log('No admin user found. Auto-seeding admin...');
-            await User.create({
-              name: 'Admin',
-              email: adminEmail,
-              password: adminPassword,
-              role: 'admin'
-            });
-            console.log('Admin user seeded successfully!');
-          } else {
-            console.warn('No admin found and ADMIN_PASSWORD env var not set. Skipping admin seed.');
-          }
+          console.log(`No admin found for ${adminEmail}. Auto-seeding...`);
+          await User.create({
+            name: 'JS Fitness Admin',
+            email: adminEmail,
+            password: adminPassword,
+            role: 'admin'
+          });
+          console.log('New admin user seeded successfully!');
         }
       } catch (seedErr) {
         console.error('Admin seed error (non-fatal):', seedErr.message);
