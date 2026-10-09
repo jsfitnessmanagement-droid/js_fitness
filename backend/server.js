@@ -15,6 +15,9 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
+// Trust the reverse proxy (Render) so rate limiter uses the correct client IP
+app.set('trust proxy', 1);
+
 try {
   const rateLimit = require('express-rate-limit');
   const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
