@@ -24,13 +24,13 @@ export default function PricingSection() {
         const response = await api.get('/membership-plans');
         if (response.data.success) {
           const formattedPlans = response.data.data.map((plan: any) => ({
-            name: plan.planName,
+            name: plan.planName || plan.name,
             price: `₹${plan.price.toLocaleString()}`,
             rawPrice: plan.price,
-            duration: plan.displayDuration,
+            duration: plan.displayDuration || plan.duration,
             features: plan.features,
-            popular: plan.popular,
-            highlight: plan.popular,
+            popular: plan.popular || plan.isPopular,
+            highlight: plan.popular || plan.isPopular,
             savings: plan.savings,
             _id: plan._id
           }));

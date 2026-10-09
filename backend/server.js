@@ -127,14 +127,20 @@ if (require.main === module) {
         const User = require('./models/User');
         const adminExists = await User.findOne({ role: 'admin' });
         if (!adminExists) {
-          console.log('No admin user found. Auto-seeding admin...');
-          await User.create({
-            name: 'Admin',
-            email: 'admin@jsfitness.in',
-            password: 'admin123',
-            role: 'admin'
-          });
-          console.log('Admin user seeded successfully!');
+          const adminEmail = process.env.ADMIN_EMAIL || 'admin@jsfitness.in';
+          const adminPassword = process.env.ADMIN_PASSWORD;
+          if (adminPassword) {
+            console.log('No admin user found. Auto-seeding admin...');
+            await User.create({
+              name: 'Admin',
+              email: adminEmail,
+              password: adminPassword,
+              role: 'admin'
+            });
+            console.log('Admin user seeded successfully!');
+          } else {
+            console.warn('No admin found and ADMIN_PASSWORD env var not set. Skipping admin seed.');
+          }
         }
       } catch (seedErr) {
         console.error('Admin seed error (non-fatal):', seedErr.message);
@@ -151,6 +157,7 @@ if (require.main === module) {
         console.log('SIGTERM signal received: closing HTTP server');
         server.close(() => {
           console.log('HTTP server closed');
+          const mongoose = require('mongoose');
           mongoose.connection.close(false).then(() => {
             console.log('MongoDB connection closed');
             process.exit(0);

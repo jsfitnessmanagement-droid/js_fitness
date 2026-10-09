@@ -157,7 +157,13 @@ export default function LoginPage() {
               </div>
             </form>
             
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center space-y-3">
+              <p className="text-slate-400 text-sm">
+                Don&apos;t have an account?{' '}
+                <Link href="/signup" className="text-orange-500 hover:text-orange-400 font-medium transition-colors">
+                  Sign up here
+                </Link>
+              </p>
               <Link href="/" className="text-slate-400 hover:text-orange-500 text-sm transition-colors inline-flex items-center">
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Back to Home

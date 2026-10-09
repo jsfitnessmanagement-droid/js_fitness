@@ -50,10 +50,19 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://checkout.razorpay.com https://*.onrender.com http://localhost:5000; frame-src 'self' https://api.razorpay.com;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://checkout.razorpay.com https://*.onrender.com http://localhost:5000; frame-src 'self' https://api.razorpay.com https://www.google.com;",
           },
         ],
       },
+    ];
+  },
+  async redirects() {
+    return [
+      { source: '/contact', destination: '/#contact', permanent: true },
+      { source: '/facility', destination: '/#gallery', permanent: true },
+      { source: '/about', destination: '/#about', permanent: true },
+      { source: '/calculator', destination: '/#bmi', permanent: true },
+      { source: '/pricing', destination: '/#pricing', permanent: true },
     ];
   },
 };
