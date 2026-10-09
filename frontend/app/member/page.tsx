@@ -7,6 +7,12 @@ import Link from 'next/link';
 export default function MemberStatus() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [pricingMap, setPricingMap] = useState<Record<string, string>>({
+    '1 Month': '₹1,500',
+    '3 Months': '₹3,600',
+    '6 Months': '₹6,000',
+    '1 Year': '₹10,000'
+  });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -20,7 +26,23 @@ export default function MemberStatus() {
         setLoading(false);
       }
     };
+    const fetchPricing = async () => {
+      try {
+        const resp = await api.get('/membership-plans');
+        if (resp.data?.success && resp.data.data) {
+          const map: Record<string, string> = {};
+          resp.data.data.forEach((plan: any) => {
+            const name = plan.planName || plan.name;
+            if (name) map[name] = `₹${plan.price.toLocaleString()}`;
+          });
+          if (Object.keys(map).length > 0) setPricingMap(map);
+        }
+      } catch (err) {
+        console.error('Failed to fetch pricing, using defaults', err);
+      }
+    };
     fetchProfile();
+    fetchPricing();
   }, []);
 
   if (loading) {
@@ -58,13 +80,6 @@ export default function MemberStatus() {
   
   const percentUsed = Math.min(100, Math.max(0, ((totalDays - daysLeft) / totalDays) * 100));
 
-  // TODO: Fetch pricing from API instead of hardcoding to ensure it stays up to date
-  const pricingMap: Record<string, string> = { 
-    '1 Month': '₹1,500', 
-    '3 Months': '₹3,600', 
-    '6 Months': '₹6,000', 
-    '1 Year': '₹10,000' 
-  };
 
   const isExpiringSoon = daysLeft <= 7 && daysLeft > 0;
   const isExpired = daysLeft <= 0;
