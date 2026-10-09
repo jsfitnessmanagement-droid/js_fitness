@@ -22,7 +22,11 @@ api.interceptors.request.use((config) => {
 // Response interceptor to handle 401 -> try refresh
 api.interceptors.response.use((res) => res, async (err) => {
   const originalRequest = err.config;
-  if (err.response && err.response.status === 401 && !originalRequest._retry) {
+  
+  // Do not try to refresh if the request was to login or refresh itself
+  const isAuthRequest = originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/refresh');
+  
+  if (err.response && err.response.status === 401 && !originalRequest._retry && !isAuthRequest) {
     originalRequest._retry = true;
     try {
       const resp = await api.post('/auth/refresh');
